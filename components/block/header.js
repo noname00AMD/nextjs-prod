@@ -5,8 +5,8 @@ export default function Header({ props }) {
     return (
         <>
             <div className={styles["top_bar"]}>
-                <div className=" cont">
-                    <div className="g-row-1">
+                <div className={` cont`}>
+                    <div className="row">
                         <div className={styles.hot + " col-8 "}>
                             <Link href="/abc">
                                 <a > #abc </a>
@@ -24,17 +24,20 @@ export default function Header({ props }) {
                 </div>
             </div>
             <header className={styles.header} >
-                <div className="sm-cont">
-                    <div className="g-row-1">
-                        <div className={styles.logo + ` col-2 `}>
-                            <Link href="/" title={`home`}  >
-                                <a style={{
-                                    backgroundImage: 'url("/image/logo.png")',
-                                    backgroundRepeat: "no-repeat",
-                                    backgroundSize: "100% 100%"
-                                }}>
-                                </a>
-                            </Link>
+                <div className={` sm-cont`}>
+                    <div className="row">
+                        <div className={styles.logo + ` col-2 `} >
+                            <div style={{width: "168px" }}>
+                                <Link href="/" title={`home`}  >
+                                    <a style={{
+                                        backgroundImage: 'url("/image/logo.png")',
+                                        backgroundRepeat: "no-repeat",
+                                        backgroundSize: "100% 100%"
+                                    }}>
+                                    </a>
+                                </Link>
+                            </div>
+
                         </div>
                         <div className={styles.right + ` col-10 `}>
                             <div>

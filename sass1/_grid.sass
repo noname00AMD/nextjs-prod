@@ -1,0 +1,204 @@
+$g-breakpoints: ( xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px) !default
+$sm: 576px
+$md: 768px
+$lg: 992px
+$xl: 1200px
+$xxl: 1400px
+$columns-12: 12 !default
+$rows-10: 10 !default
+$gap: 10px
+
+
+// @mixin make-grid-in-rows($columns: $columns-12, $rows: $rows-10 , $g-breakpoints: $g-breakpoints)
+//     $breakpoints-name: map-keys($g-breakpoints)
+//     @for $j from 1 through length($g-breakpoints)
+//         $next: $j+1
+//         $breakpoint-name: nth($breakpoints-name , $j)
+//         $min: breakpoint-min($breakpoint-name, $g-breakpoints)
+//         $infix: breakpoint-infix($breakpoint-name)
+//         @for $i from 1 through $columns-12
+//             .col#{$infix}-#{$i}
+//                 --col: #{$i}
+//                 .start#{$infix}-#{$i}
+//                     --start: #{$i}
+//                 .row#{$infix}-#{$i}
+//                     --in-rows: #{$i}
+
+//             @for $o from $next through length($g-breakpoints)
+//                 @if $o > length($g-breakpoints)
+//                     // delete 7
+//                 @else
+//                     $breakpoint-name1: nth($breakpoints-name , $o)
+//                     $infix1: breakpoint-infix($breakpoint-name1)
+//                     @for $r from 1 through $columns-12
+//                         .col#{$infix1}-#{$r}
+//                             --col: #{$columns-12}
+//                         .start#{$infix1}-#{$r}
+//                             --start: 1
+//                         .row#{$infix1}-#{$r}
+//                             --in-rows: auto
+
+//             .d#{$infix}-none
+//                 display: none
+//             .d#{$infix}-inline
+//                 display: inline
+//             .d#{$infix}-block
+//                 display: block
+//             .d#{$infix}-inline-block
+//                 display: inline-block
+
+
+.sm-cont , .cont , .cont-fluid
+    @for $i from 1 through $rows-10
+        >.g-row-#{$i}
+            --g-row: #{$i}
+    width: 100%
+    max-width: var(--container-w) !important
+    padding-right: calc($gap / 2)
+    padding-left: calc($gap / 2)
+    margin-right: auto
+    margin-left: auto
+[class*=g-row-]
+    display: grid
+    grid-column-gap: $gap
+    grid-template-rows: repeat(var(--g-row,auto))
+    grid-template-columns: repeat($columns-12,1fr)
+    --container-w: 100%
+    >[class*=col-]
+        grid-column: var(--start , auto) /span var(--col, auto)
+        grid-row: var(--in-rows, auto)
+        --col: #{$columns-12}//12
+        --start: auto
+        --in-rows: auto
+
+    //  grid-in-all-breakpoint
+    @for $i from 1 through $columns-12
+        >.col-#{$i}
+            --col: #{$i}
+        >.start-#{$i}
+            --start: #{$i}
+        >.row-#{$i}
+            --in-rows: #{$i}
+
+    @for $i from 1 through $columns-12
+        >[class*=col-xs-#{$i}]
+            --col: #{$i}
+        >[class*=start-xs-#{$i}]
+            --start: #{$i}
+        >[class*=row-xs-#{$i}]
+            --in-rows: #{$i}
+        >[class*=col-sm-], >[class*=col-md-] , >[class*=col-lg-] , >[class*=col-xl-] , >[class*=col-xxl-]
+            --col: #{$columns-12}
+        >[class*=start-sm-], >[class*=start-md-] , >[class*=start-lg-] , >[class*=start-xl-] , >[class*=start-xxl-]
+            --start: auto
+        >[class*=row-sm-], >[class*=row-md-] , >[class*=row-lg-] , >[class*=row-xl-] , >[class*=row-xxl-]
+            --in-rows: auto
+    [class*=d-none-]
+        display: none
+    [class*=d-inline-]
+        display: inline
+    [class*=d-block-]
+        display: block
+    [class*=d-inline-block-]
+        display: inline-block
+
+@media (min-width: calc($sm + 1px))
+    :root
+        --container-w: 100%
+    [class*=g-row-]
+        @for $i from 1 through $columns-12
+            >[class*=col-sm-#{$i}]
+                --col: #{$i}
+            >[class*=start-sm-#{$i}]
+                --start: #{$i}
+            >[class*=row-sm-#{$i}]
+                --in-rows: #{$i}
+            >[class*=col-md-] , >[class*=col-lg-] , >[class*=col-xl-] , >[class*=col-xxl-]
+                --col: #{$columns-12}
+            >[class*=start-md-] , >[class*=start-lg-] , >[class*=start-xl-] , >[class*=start-xxl-]
+                --start: auto
+            >[class*=row-md-] , >[class*=row-lg-] , >[class*=row-xl-] , >[class*=row-xxl-]
+                --in-rows: auto
+@media (min-width: calc($md + 1px))
+    :root
+        --container-w: 100%
+    [class*=g-row-]
+        @for $i from 1 through $columns-12
+            >[class*=col-md-#{$i}]
+                --col: #{$i}
+            >[class*=start-md-#{$i}]
+                --start: #{$i}
+            >[class*=row-md-#{$i}]
+                --in-rows: #{$i}
+            >[class*=col-lg-] , >[class*=col-xl-] , >[class*=col-xxl-]
+                --col: #{$columns-12}
+            >[class*=start-lg-] , >[class*=start-xl-] , >[class*=start-xxl-]
+                --start: auto
+            >[class*=row-lg-] , >[class*=row-xl-] , >[class*=row-xxl-]
+                --in-rows: auto
+@media (min-width: calc($lg + 1px))
+    :root
+        --container-w: 912px
+    [class*=g-row-]
+        @for $i from 1 through $columns-12
+            >[class*=col-lg-#{$i}]
+                --col: #{$i}
+            >[class*=start-lg-#{$i}]
+                --start: #{$i}
+            >[class*=row-lg-#{$i}]
+                --in-rows: #{$i}
+            >[class*=col-xl-] , >[class*=col-xxl-]
+                --col: #{$columns-12}
+            >[class*=start-xl-] , >[class*=start-xxl-]
+                --start: auto
+            >[class*=row-xl-] , >[class*=row-xxl-]
+                --in-rows: auto
+@media (min-width: calc($xl + 1px))
+    :root
+        --container-w: 1050px
+    [class*=g-row-]
+        @for $i from 1 through $columns-12
+            >[class*=col-xl-#{$i}]
+                --col: #{$i}
+            >[class*=start-xl-#{$i}]
+                --start: #{$i}
+            >[class*=row-xl-#{$i}]
+                --in-rows: #{$i}
+            >[class*=col-xxl-]
+                --col: #{$columns-12}
+            >[class*=start-xxl-]
+                --start: auto
+            >[class*=row-xxl-]
+                --in-rows: auto
+@media (min-width: calc($xxl + 1px))
+    :root
+        --container-w: 1240px
+    [class*=g-row-]
+        @for $i from 1 through $columns-12
+            >[class*=col-xl-#{$i}]
+                --col: #{$i}
+            >[class*=start-xl-#{$i}]
+                --start: #{$i}
+            >[class*=row-xl-#{$i}]
+                --in-rows: #{$i}
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.w-100
+    width: 100%
+.d-none
+    display: none !important
