@@ -63,6 +63,8 @@ export default function PageHead({ children, props }) {
                 {/* -- icon -- */}
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
                 {/* <!-- for devlopment only --> */}
+                <script async src="/js/js.js"></script>
+
             </Head>
         </>
     )
