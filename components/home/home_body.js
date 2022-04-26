@@ -27,45 +27,74 @@ export default function Body({ props }) {
                                         </div>
                                         <div className="row">
                                             <div className="col-12">
+                                                <div className={`${styles.swiper} swiper`} >
+                                                    <div className="swiper-wrapper">
+                                                        <div className="swiper-slide">Slide 1</div>
+                                                        <div className="swiper-slide">Slide 2</div>
+                                                        <div className="swiper-slide">Slide 3</div>
+                                                    </div>
+                                                    <div className="swiper-pagination"></div>
+                                                    <div className="swiper-button-prev"></div>
+                                                    <div className="swiper-button-next"></div>
+                                                    <div className="swiper-scrollbar"></div>
+                                                </div>
+                                                <div className={`${styles.swiper} swiper`} >
+                                                    <div className="swiper-wrapper">
+                                                        <div className="swiper-slide">Slide 1</div>
+                                                        <div className="swiper-slide">Slide 2</div>
+                                                        <div className="swiper-slide">Slide 3</div>
+                                                    </div>
+                                                    <div className="swiper-pagination"></div>
+                                                    <div className="swiper-button-prev"></div>
+                                                    <div className="swiper-button-next"></div>
+                                                    <div className="swiper-scrollbar"></div>
+                                                </div>
+                                                <div className={`${styles.swiper} swiper`} >
+                                                    <div className="swiper-wrapper">
+                                                        <div className="swiper-slide">Slide 1</div>
+                                                        <div className="swiper-slide">Slide 2</div>
+                                                        <div className="swiper-slide">Slide 3</div>
+                                                    </div>
+                                                    <div className="swiper-pagination"></div>
+                                                    <div className="swiper-button-prev"></div>
+                                                    <div className="swiper-button-next"></div>
+                                                    <div className="swiper-scrollbar"></div>
+                                                </div>
                                                 <div className={`${styles.slide} slide`}>
-                                                    <button className={`${styles.slide__prev}`}>
+                                                    <button className={`${styles.slide__prev} slide__prev`}>
                                                         <svg viewBox='0 0 20 30'>
                                                             <path d="m20.00039,5.58501l-9.2629,9.48309l9.2629,9.48308l-5.29365,5.42272l-14.55654,-14.9058l14.55654,-14.90694" fill="#000" />
                                                         </svg>
                                                     </button>
-                                                    <button className={`${styles.slide__next}`}>
-                                                        <svg viewBox='0 0 20 30'> 
-                                                            <path  d="m0.08864,24.6034l9.33698,-9.57492l-9.33698,-9.57499l5.33656,-5.47199l14.67467,15.04698l-14.67467,15.05165" fill="#000" />
+                                                    <button className={`${styles.slide__next} slide__next`}>
+                                                        <svg viewBox='0 0 20 30'>
+                                                            <path d="m0.08864,24.6034l9.33698,-9.57492l-9.33698,-9.57499l5.33656,-5.47199l14.67467,15.04698l-14.67467,15.05165" fill="#000" />
                                                         </svg>
                                                     </button>
                                                     <div className={`${styles.slide__container} slide__container`}>
                                                         <div className={`${styles.slide__item} slide__item`}>
                                                             a
                                                         </div>
-                                         
+
                                                         <div className={`${styles.slide__item} slide__item`}>
                                                             b
                                                         </div>
-                                         
+
                                                         <div className={`${styles.slide__item} slide__item`}>
                                                             c
                                                         </div>
-                                         
+
                                                         <div className={`${styles.slide__item} slide__item`}>
                                                             d
                                                         </div>
-                                         
+
                                                         <div className={`${styles.slide__item} slide__item`}>
                                                             e
                                                         </div>
-                                         
+
                                                     </div>
                                                 </div>
                                             </div>
-
-
-
-
                                         </div>
                                     </div>
                                     <div className="col-4 " >

@@ -62,7 +62,9 @@ export default function PageHead({ children, props }) {
                 {/* <!-- style --> */}
                 {/* -- icon -- */}
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+                <link rel="stylesheet" href="/css/swiper-bundle.css" />
                 {/* <!-- for devlopment only --> */}
+                <script async src="/js/swiper-bundle.js"></script>
                 <script async src="/js/js.js"></script>
 
             </Head>
