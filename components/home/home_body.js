@@ -27,72 +27,94 @@ export default function Body({ props }) {
                                         </div>
                                         <div className="row">
                                             <div className="col-12">
-                                                <div className={`${styles.swiper} swiper`} >
-                                                    <div className="swiper-wrapper">
-                                                        <div className="swiper-slide">Slide 1</div>
-                                                        <div className="swiper-slide">Slide 2</div>
-                                                        <div className="swiper-slide">Slide 3</div>
-                                                    </div>
-                                                    <div className="swiper-pagination"></div>
-                                                    <div className="swiper-button-prev"></div>
-                                                    <div className="swiper-button-next"></div>
-                                                    <div className="swiper-scrollbar"></div>
-                                                </div>
-                                                <div className={`${styles.swiper} swiper`} >
-                                                    <div className="swiper-wrapper">
-                                                        <div className="swiper-slide">Slide 1</div>
-                                                        <div className="swiper-slide">Slide 2</div>
-                                                        <div className="swiper-slide">Slide 3</div>
-                                                    </div>
-                                                    <div className="swiper-pagination"></div>
-                                                    <div className="swiper-button-prev"></div>
-                                                    <div className="swiper-button-next"></div>
-                                                    <div className="swiper-scrollbar"></div>
-                                                </div>
-                                                <div className={`${styles.swiper} swiper`} >
-                                                    <div className="swiper-wrapper">
-                                                        <div className="swiper-slide">Slide 1</div>
-                                                        <div className="swiper-slide">Slide 2</div>
-                                                        <div className="swiper-slide">Slide 3</div>
-                                                    </div>
-                                                    <div className="swiper-pagination"></div>
-                                                    <div className="swiper-button-prev"></div>
-                                                    <div className="swiper-button-next"></div>
-                                                    <div className="swiper-scrollbar"></div>
-                                                </div>
-                                                <div className={`${styles.slide} slide`}>
-                                                    <button className={`${styles.slide__prev} slide__prev`}>
+                                                <div className={`slide`}>
+                                                    <button className={`slide__prev`}>
                                                         <svg viewBox='0 0 20 30'>
                                                             <path d="m20.00039,5.58501l-9.2629,9.48309l9.2629,9.48308l-5.29365,5.42272l-14.55654,-14.9058l14.55654,-14.90694" fill="#000" />
                                                         </svg>
                                                     </button>
-                                                    <button className={`${styles.slide__next} slide__next`}>
+                                                    <button className={` slide__next`}>
                                                         <svg viewBox='0 0 20 30'>
                                                             <path d="m0.08864,24.6034l9.33698,-9.57492l-9.33698,-9.57499l5.33656,-5.47199l14.67467,15.04698l-14.67467,15.05165" fill="#000" />
                                                         </svg>
                                                     </button>
-                                                    <div className={`${styles.slide__container} slide__container`}>
-                                                        <div className={`${styles.slide__item} slide__item`}>
+                                                    <div className={` slide__container`}>
+                                                        <div className={` slide__item slide__item--active`}>
                                                             a
                                                         </div>
-
-                                                        <div className={`${styles.slide__item} slide__item`}>
+                                                        <div className={` slide__item`}>
                                                             b
                                                         </div>
-
-                                                        <div className={`${styles.slide__item} slide__item`}>
+                                                        <div className={` slide__item`}>
                                                             c
                                                         </div>
-
-                                                        <div className={`${styles.slide__item} slide__item`}>
+                                                        <div className={` slide__item `}>
                                                             d
                                                         </div>
-
-                                                        <div className={`${styles.slide__item} slide__item`}>
+                                                        <div className={` slide__item`}>
                                                             e
                                                         </div>
-
                                                     </div>
+                                                    <div className={` slide__pagination`}></div>
+                                                    <style jsx>{`
+                                                        .slide{
+                                                            width: 100%;
+                                                            height: 400px;
+                                                            border: 1px solid #000;
+                                                            position: relative;
+                                                        }
+                                                        .slide__prev , .slide__next{
+                                                            display: inline-block;
+                                                            height: 70px;
+                                                            position: absolute;
+                                                            z-index: 9;
+                                                            top: 50%;
+                                                            transform: translate( 0, - 50% );
+                                                            background-color: transparent;
+                                                            transition: all .3s ease 0s;
+                                                        }
+                                                        .slide__prev svg, .slide__next svg{
+                                                            line-height: 70px;
+                                                            cursor: pointer;
+                                                            height: 56px;
+                                                            width: 30px;
+                                                        }
+                                                        path{
+                                                            stroke: #fff;
+                                                        }
+                                                        .slide__prev:hover , .slide__next:hover{
+                                                            background-color: rgb(255, 99, 71, 0.2);
+                                                        }
+                                                        .slide__prev{
+                                                            left: 0;
+                                                        }
+                                                        .slide__next{
+                                                            right: 0;
+                                                        }
+                                                        .slide__pagination{
+                                                            height: 8px;
+                                                            position: absolute;
+                                                            transform: translate( -50%, 0%);
+                                                            left: 50%;
+                                                            background-color: #111;
+                                                            bottom: 0;
+                                                            z-index: 9;
+                                                        }
+                                                        .slide__container{
+                                                            height: 100%;
+                                                        }
+                                                        .slide__item{
+                                                            height: 100%;
+                                                            width: 100%;
+                                                            background-color: #fff;
+                                                            position: absolute;
+                                                            z-index: 0;
+                                                            font-size: 45px;
+                                                        }
+                                                        .slide__item.slide__item--active{
+                                                            z-index: 3;
+                                                        }
+                                                        `}</style>
                                                 </div>
                                             </div>
                                         </div>
