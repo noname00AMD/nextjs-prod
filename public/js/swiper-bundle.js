@@ -1,5 +1,5 @@
 /**
- * Swiper 8.1.1
+ * Swiper 8.2.4
  * Most modern mobile touch slider and framework with hardware accelerated transitions
  * https://swiperjs.com
  *
@@ -7,9 +7,9 @@
  *
  * Released under the MIT License
  *
- * Released on: April 15, 2022
+ * Released on: June 13, 2022
  */
-
+console.log("swiper loaded");
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -1546,6 +1546,7 @@
     var eventsEmitter = {
       on(events, handler, priority) {
         const self = this;
+        if (!self.eventsListeners || self.destroyed) return self;
         if (typeof handler !== 'function') return self;
         const method = priority ? 'unshift' : 'push';
         events.split(' ').forEach(event => {
@@ -1557,6 +1558,7 @@
 
       once(events, handler, priority) {
         const self = this;
+        if (!self.eventsListeners || self.destroyed) return self;
         if (typeof handler !== 'function') return self;
 
         function onceHandler() {
@@ -1579,6 +1581,7 @@
 
       onAny(handler, priority) {
         const self = this;
+        if (!self.eventsListeners || self.destroyed) return self;
         if (typeof handler !== 'function') return self;
         const method = priority ? 'unshift' : 'push';
 
@@ -1591,6 +1594,7 @@
 
       offAny(handler) {
         const self = this;
+        if (!self.eventsListeners || self.destroyed) return self;
         if (!self.eventsAnyListeners) return self;
         const index = self.eventsAnyListeners.indexOf(handler);
 
@@ -1603,6 +1607,7 @@
 
       off(events, handler) {
         const self = this;
+        if (!self.eventsListeners || self.destroyed) return self;
         if (!self.eventsListeners) return self;
         events.split(' ').forEach(event => {
           if (typeof handler === 'undefined') {
@@ -1620,6 +1625,7 @@
 
       emit() {
         const self = this;
+        if (!self.eventsListeners || self.destroyed) return self;
         if (!self.eventsListeners) return self;
         let events;
         let data;
@@ -2037,7 +2043,7 @@
 
       if (swiper.params.slidesPerView !== 'auto' && swiper.params.slidesPerView > 1) {
         if (swiper.params.centeredSlides) {
-          swiper.visibleSlides.each(slide => {
+          (swiper.visibleSlides || $([])).each(slide => {
             activeSlides.push(slide);
           });
         } else {
@@ -2847,6 +2853,29 @@
         runCallbacks = true;
       }
 
+      if (typeof index === 'string') {
+        /**
+         * The `index` argument converted from `string` to `number`.
+         * @type {number}
+         */
+        const indexAsNumber = parseInt(index, 10);
+        /**
+         * Determines whether the `index` argument is a valid `number`
+         * after being converted from the `string` type.
+         * @type {boolean}
+         */
+
+        const isValidNumber = isFinite(indexAsNumber);
+
+        if (!isValidNumber) {
+          throw new Error(`The passed-in 'index' (string) couldn't be converted to 'number'. [${index}] given.`);
+        } // Knowing that the converted `index` is a valid number,
+        // we can update the original argument's value.
+
+
+        index = indexAsNumber;
+      }
+
       const swiper = this;
       let newIndex = index;
 
@@ -3225,6 +3254,11 @@
         if (!el || el === getDocument() || el === getWindow()) return null;
         if (el.assignedSlot) el = el.assignedSlot;
         const found = el.closest(selector);
+
+        if (!found && !el.getRootNode) {
+          return null;
+        }
+
         return found || __closestFrom(el.getRootNode().host);
       }
 
@@ -3273,7 +3307,7 @@
       const noSwipingSelector = params.noSwipingSelector ? params.noSwipingSelector : `.${params.noSwipingClass}`;
       const isTargetShadow = !!(e.target && e.target.shadowRoot); // use closestElement for shadow root element to get the actual closest for nested shadow root element
 
-      if (params.noSwiping && (isTargetShadow ? closestElement(noSwipingSelector, e.target) : $targetEl.closest(noSwipingSelector)[0])) {
+      if (params.noSwiping && (isTargetShadow ? closestElement(noSwipingSelector, $targetEl[0]) : $targetEl.closest(noSwipingSelector)[0])) {
         swiper.allowClick = true;
         return;
       }
@@ -3944,8 +3978,21 @@
         }
 
         swiper.emitContainerClasses();
-      }
+      } // Toggle navigation, pagination, scrollbar
 
+
+      ['navigation', 'pagination', 'scrollbar'].forEach(prop => {
+        const wasModuleEnabled = params[prop] && params[prop].enabled;
+        const isModuleEnabled = breakpointParams[prop] && breakpointParams[prop].enabled;
+
+        if (wasModuleEnabled && !isModuleEnabled) {
+          swiper[prop].disable();
+        }
+
+        if (!wasModuleEnabled && isModuleEnabled) {
+          swiper[prop].enable();
+        }
+      });
       const directionChanged = breakpointParams.direction && breakpointParams.direction !== params.direction;
       const needsReLoop = params.loop && (breakpointParams.slidesPerView !== params.slidesPerView || directionChanged);
 
@@ -4076,6 +4123,8 @@
         'css-mode': params.cssMode
       }, {
         'centered': params.cssMode && params.centeredSlides
+      }, {
+        'watch-progress': params.watchSlidesProgress
       }], params.containerModifierClass);
       classNames.push(...suffixes);
       $el.addClass([...classNames].join(' '));
@@ -4600,6 +4649,7 @@
 
       getSlideClasses(slideEl) {
         const swiper = this;
+        if (swiper.destroyed) return '';
         return slideEl.className.split(' ').filter(className => {
           return className.indexOf('swiper-slide') === 0 || className.indexOf(swiper.params.slideClass) === 0;
         }).join(' ');
@@ -4792,6 +4842,10 @@
             res.children = options => $el.children(options);
 
             return res;
+          }
+
+          if (!$el.children) {
+            return $($el).children(getWrapperSelector());
           }
 
           return $el.children(getWrapperSelector());
@@ -5861,7 +5915,8 @@
           hideOnClick: false,
           disabledClass: 'swiper-button-disabled',
           hiddenClass: 'swiper-button-hidden',
-          lockClass: 'swiper-button-lock'
+          lockClass: 'swiper-button-lock',
+          navigationDisabledClass: 'swiper-navigation-disabled'
         }
       });
       swiper.navigation = {
@@ -5970,8 +6025,13 @@
       }
 
       on('init', () => {
-        init();
-        update();
+        if (swiper.params.navigation.enabled === false) {
+          // eslint-disable-next-line
+          disable();
+        } else {
+          init();
+          update();
+        }
       });
       on('toEdge fromEdge lock unlock', () => {
         update();
@@ -6025,7 +6085,21 @@
           }
         }
       });
+
+      const enable = () => {
+        swiper.$el.removeClass(swiper.params.navigation.navigationDisabledClass);
+        init();
+        update();
+      };
+
+      const disable = () => {
+        swiper.$el.addClass(swiper.params.navigation.navigationDisabledClass);
+        destroy();
+      };
+
       Object.assign(swiper.navigation, {
+        enable,
+        disable,
         update,
         init,
         destroy
@@ -6077,7 +6151,8 @@
           clickableClass: `${pfx}-clickable`,
           lockClass: `${pfx}-lock`,
           horizontalClass: `${pfx}-horizontal`,
-          verticalClass: `${pfx}-vertical`
+          verticalClass: `${pfx}-vertical`,
+          paginationDisabledClass: `${pfx}-disabled`
         }
       });
       swiper.pagination = {
@@ -6380,9 +6455,14 @@
       }
 
       on('init', () => {
-        init();
-        render();
-        update();
+        if (swiper.params.pagination.enabled === false) {
+          // eslint-disable-next-line
+          disable();
+        } else {
+          init();
+          render();
+          update();
+        }
       });
       on('activeIndexChange', () => {
         if (swiper.params.loop) {
@@ -6442,7 +6522,32 @@
           $el.toggleClass(swiper.params.pagination.hiddenClass);
         }
       });
+
+      const enable = () => {
+        swiper.$el.removeClass(swiper.params.pagination.paginationDisabledClass);
+
+        if (swiper.pagination.$el) {
+          swiper.pagination.$el.removeClass(swiper.params.pagination.paginationDisabledClass);
+        }
+
+        init();
+        render();
+        update();
+      };
+
+      const disable = () => {
+        swiper.$el.addClass(swiper.params.pagination.paginationDisabledClass);
+
+        if (swiper.pagination.$el) {
+          swiper.pagination.$el.addClass(swiper.params.pagination.paginationDisabledClass);
+        }
+
+        destroy();
+      };
+
       Object.assign(swiper.pagination, {
+        enable,
+        disable,
         render,
         update,
         init,
@@ -6473,7 +6578,10 @@
           draggable: false,
           snapOnRelease: true,
           lockClass: 'swiper-scrollbar-lock',
-          dragClass: 'swiper-scrollbar-drag'
+          dragClass: 'swiper-scrollbar-drag',
+          scrollbarDisabledClass: 'swiper-scrollbar-disabled',
+          horizontalClass: `swiper-scrollbar-horizontal`,
+          verticalClass: `swiper-scrollbar-vertical`
         }
       });
       swiper.scrollbar = {
@@ -6699,6 +6807,7 @@
           support
         } = swiper;
         const $el = scrollbar.$el;
+        if (!$el) return;
         const target = $el[0];
         const activeListener = support.passiveListener && params.passiveListeners ? {
           passive: false,
@@ -6723,12 +6832,12 @@
       }
 
       function enableDraggable() {
-        if (!swiper.params.scrollbar.el) return;
+        if (!swiper.params.scrollbar.el || !swiper.scrollbar.el) return;
         events('on');
       }
 
       function disableDraggable() {
-        if (!swiper.params.scrollbar.el) return;
+        if (!swiper.params.scrollbar.el || !swiper.scrollbar.el) return;
         events('off');
       }
 
@@ -6748,6 +6857,7 @@
           $el = $swiperEl.find(params.el);
         }
 
+        $el.addClass(swiper.isHorizontal() ? params.horizontalClass : params.verticalClass);
         let $dragEl = $el.find(`.${swiper.params.scrollbar.dragClass}`);
 
         if ($dragEl.length === 0) {
@@ -6772,13 +6882,25 @@
       }
 
       function destroy() {
+        const params = swiper.params.scrollbar;
+        const $el = swiper.scrollbar.$el;
+
+        if ($el) {
+          $el.removeClass(swiper.isHorizontal() ? params.horizontalClass : params.verticalClass);
+        }
+
         disableDraggable();
       }
 
       on('init', () => {
-        init();
-        updateSize();
-        setTranslate();
+        if (swiper.params.scrollbar.enabled === false) {
+          // eslint-disable-next-line
+          disable();
+        } else {
+          init();
+          updateSize();
+          setTranslate();
+        }
       });
       on('update resize observerUpdate lock unlock', () => {
         updateSize();
@@ -6801,7 +6923,32 @@
       on('destroy', () => {
         destroy();
       });
+
+      const enable = () => {
+        swiper.$el.removeClass(swiper.params.scrollbar.scrollbarDisabledClass);
+
+        if (swiper.scrollbar.$el) {
+          swiper.scrollbar.$el.removeClass(swiper.params.scrollbar.scrollbarDisabledClass);
+        }
+
+        init();
+        updateSize();
+        setTranslate();
+      };
+
+      const disable = () => {
+        swiper.$el.addClass(swiper.params.scrollbar.scrollbarDisabledClass);
+
+        if (swiper.scrollbar.$el) {
+          swiper.scrollbar.$el.addClass(swiper.params.scrollbar.scrollbarDisabledClass);
+        }
+
+        destroy();
+      };
+
       Object.assign(swiper.scrollbar, {
+        enable,
+        disable,
         updateSize,
         setTranslate,
         init,
@@ -7699,11 +7846,11 @@
         if (params.loadPrevNext) {
           if (slidesPerView > 1 || params.loadPrevNextAmount && params.loadPrevNextAmount > 1) {
             const amount = params.loadPrevNextAmount;
-            const spv = slidesPerView;
+            const spv = Math.ceil(slidesPerView);
             const maxIndex = Math.min(activeIndex + spv + Math.max(amount, spv), slides.length);
             const minIndex = Math.max(activeIndex - Math.max(spv, amount), 0); // Next Slides
 
-            for (let i = activeIndex + slidesPerView; i < maxIndex; i += 1) {
+            for (let i = activeIndex + spv; i < maxIndex; i += 1) {
               if (slideExist(i)) loadInSlide(i);
             } // Prev Slides
 
@@ -7819,6 +7966,10 @@
         if (lazy.enabled && (cssMode || watchSlidesProgress && (touchReleaseOnEdges || resistanceRatio === 0))) {
           load();
         }
+      });
+      on('destroy', () => {
+        if (!swiper.$el) return;
+        swiper.$el.find(`.${swiper.params.lazy.loadingClass}`).removeClass(swiper.params.lazy.loadingClass);
       });
       Object.assign(swiper.lazy, {
         load,
@@ -8214,7 +8365,27 @@
         swiper.slideTo(swiper.slides.indexOf(slideEl), 0);
       };
 
-      function init() {
+      const initSlides = () => {
+        const params = swiper.params.a11y;
+
+        if (params.itemRoleDescriptionMessage) {
+          addElRoleDescription($(swiper.slides), params.itemRoleDescriptionMessage);
+        }
+
+        addElRole($(swiper.slides), params.slideRole);
+        const slidesLength = swiper.params.loop ? swiper.slides.filter(el => !el.classList.contains(swiper.params.slideDuplicateClass)).length : swiper.slides.length;
+
+        if (params.slideLabelMessage) {
+          swiper.slides.each((slideEl, index) => {
+            const $slideEl = $(slideEl);
+            const slideIndex = swiper.params.loop ? parseInt($slideEl.attr('data-swiper-slide-index'), 10) : index;
+            const ariaLabelMessage = params.slideLabelMessage.replace(/\{\{index\}\}/, slideIndex + 1).replace(/\{\{slidesLength\}\}/, slidesLength);
+            addElLabel($slideEl, ariaLabelMessage);
+          });
+        }
+      };
+
+      const init = () => {
         const params = swiper.params.a11y;
         swiper.$el.append(liveRegion); // Container
 
@@ -8235,18 +8406,7 @@
         addElId($wrapperEl, wrapperId);
         addElLive($wrapperEl, live); // Slide
 
-        if (params.itemRoleDescriptionMessage) {
-          addElRoleDescription($(swiper.slides), params.itemRoleDescriptionMessage);
-        }
-
-        addElRole($(swiper.slides), params.slideRole);
-        const slidesLength = swiper.params.loop ? swiper.slides.filter(el => !el.classList.contains(swiper.params.slideDuplicateClass)).length : swiper.slides.length;
-        swiper.slides.each((slideEl, index) => {
-          const $slideEl = $(slideEl);
-          const slideIndex = swiper.params.loop ? parseInt($slideEl.attr('data-swiper-slide-index'), 10) : index;
-          const ariaLabelMessage = params.slideLabelMessage.replace(/\{\{index\}\}/, slideIndex + 1).replace(/\{\{slidesLength\}\}/, slidesLength);
-          addElLabel($slideEl, ariaLabelMessage);
-        }); // Navigation
+        initSlides(); // Navigation
 
         let $nextEl;
         let $prevEl;
@@ -8274,7 +8434,7 @@
 
 
         swiper.$el.on('focus', handleFocus, true);
-      }
+      };
 
       function destroy() {
         if (liveRegion && liveRegion.length > 0) liveRegion.remove();
@@ -8313,6 +8473,10 @@
         if (!swiper.params.a11y.enabled) return;
         init();
       });
+      on('slidesLengthChange snapGridLengthChange slidesGridLengthChange', () => {
+        if (!swiper.params.a11y.enabled) return;
+        initSlides();
+      });
       on('fromEdge toEdge afterInit lock unlock', () => {
         if (!swiper.params.a11y.enabled) return;
         updateNavigation();
@@ -8338,7 +8502,8 @@
           enabled: false,
           root: '',
           replaceState: false,
-          key: 'slides'
+          key: 'slides',
+          keepQuery: false
         }
       });
       let initialized = false;
@@ -8390,6 +8555,10 @@
           value = `${key}/${value}`;
         }
 
+        if (swiper.params.history.keepQuery) {
+          value += location.search;
+        }
+
         const currentState = window.history.state;
 
         if (currentState && currentState.value === value) {
@@ -8425,7 +8594,7 @@
 
       const setHistoryPopState = () => {
         paths = getPathValues(swiper.params.url);
-        scrollToSlide(swiper.params.speed, swiper.paths.value, false);
+        scrollToSlide(swiper.params.speed, paths.value, false);
       };
 
       const init = () => {
@@ -9582,7 +9751,9 @@
         setTranslate,
         setTransition,
         overwriteParams,
-        perspective
+        perspective,
+        recreateShadows,
+        getEffectParams
       } = params;
       on('beforeInit', () => {
         if (swiper.params.effect !== effect) return;
@@ -9603,6 +9774,20 @@
       on('setTransition', (_s, duration) => {
         if (swiper.params.effect !== effect) return;
         setTransition(duration);
+      });
+      on('transitionEnd', () => {
+        if (swiper.params.effect !== effect) return;
+
+        if (recreateShadows) {
+          if (!getEffectParams || !getEffectParams().slideShadows) return; // remove shadows
+
+          swiper.slides.each(slideEl => {
+            const $slideEl = swiper.$(slideEl);
+            $slideEl.find('.swiper-slide-shadow-top, .swiper-slide-shadow-right, .swiper-slide-shadow-bottom, .swiper-slide-shadow-left').remove();
+          }); // create new one
+
+          recreateShadows();
+        }
       });
       let requireUpdateOnVirtual;
       on('virtualUpdate', () => {
@@ -9753,6 +9938,33 @@
         }
       });
 
+      const createSlideShadows = ($slideEl, progress, isHorizontal) => {
+        let shadowBefore = isHorizontal ? $slideEl.find('.swiper-slide-shadow-left') : $slideEl.find('.swiper-slide-shadow-top');
+        let shadowAfter = isHorizontal ? $slideEl.find('.swiper-slide-shadow-right') : $slideEl.find('.swiper-slide-shadow-bottom');
+
+        if (shadowBefore.length === 0) {
+          shadowBefore = $(`<div class="swiper-slide-shadow-${isHorizontal ? 'left' : 'top'}"></div>`);
+          $slideEl.append(shadowBefore);
+        }
+
+        if (shadowAfter.length === 0) {
+          shadowAfter = $(`<div class="swiper-slide-shadow-${isHorizontal ? 'right' : 'bottom'}"></div>`);
+          $slideEl.append(shadowAfter);
+        }
+
+        if (shadowBefore.length) shadowBefore[0].style.opacity = Math.max(-progress, 0);
+        if (shadowAfter.length) shadowAfter[0].style.opacity = Math.max(progress, 0);
+      };
+
+      const recreateShadows = () => {
+        // create new ones
+        const isHorizontal = swiper.isHorizontal();
+        swiper.slides.each(slideEl => {
+          const progress = Math.max(Math.min(slideEl.progress, 1), -1);
+          createSlideShadows($(slideEl), progress, isHorizontal);
+        });
+      };
+
       const setTranslate = () => {
         const {
           $el,
@@ -9846,22 +10058,7 @@
           $slideEl.transform(transform);
 
           if (params.slideShadows) {
-            // Set shadows
-            let shadowBefore = isHorizontal ? $slideEl.find('.swiper-slide-shadow-left') : $slideEl.find('.swiper-slide-shadow-top');
-            let shadowAfter = isHorizontal ? $slideEl.find('.swiper-slide-shadow-right') : $slideEl.find('.swiper-slide-shadow-bottom');
-
-            if (shadowBefore.length === 0) {
-              shadowBefore = $(`<div class="swiper-slide-shadow-${isHorizontal ? 'left' : 'top'}"></div>`);
-              $slideEl.append(shadowBefore);
-            }
-
-            if (shadowAfter.length === 0) {
-              shadowAfter = $(`<div class="swiper-slide-shadow-${isHorizontal ? 'right' : 'bottom'}"></div>`);
-              $slideEl.append(shadowAfter);
-            }
-
-            if (shadowBefore.length) shadowBefore[0].style.opacity = Math.max(-progress, 0);
-            if (shadowAfter.length) shadowAfter[0].style.opacity = Math.max(progress, 0);
+            createSlideShadows($slideEl, progress, isHorizontal);
           }
         }
 
@@ -9885,6 +10082,7 @@
 
         const zFactor = browser.isSafari || browser.isWebView ? -swiperSize / 2 : 0;
         $wrapperEl.transform(`translate3d(0px,0,${zFactor}px) rotateX(${swiper.isHorizontal() ? 0 : wrapperRotate}deg) rotateY(${swiper.isHorizontal() ? -wrapperRotate : 0}deg)`);
+        $wrapperEl[0].style.setProperty('--swiper-cube-translate-z', `${zFactor}px`);
       };
 
       const setTransition = duration => {
@@ -9905,6 +10103,8 @@
         on,
         setTranslate,
         setTransition,
+        recreateShadows,
+        getEffectParams: () => swiper.params.cubeEffect,
         perspective: () => true,
         overwriteParams: () => ({
           slidesPerView: 1,
@@ -9945,6 +10145,37 @@
         }
       });
 
+      const createSlideShadows = ($slideEl, progress, params) => {
+        let shadowBefore = swiper.isHorizontal() ? $slideEl.find('.swiper-slide-shadow-left') : $slideEl.find('.swiper-slide-shadow-top');
+        let shadowAfter = swiper.isHorizontal() ? $slideEl.find('.swiper-slide-shadow-right') : $slideEl.find('.swiper-slide-shadow-bottom');
+
+        if (shadowBefore.length === 0) {
+          shadowBefore = createShadow(params, $slideEl, swiper.isHorizontal() ? 'left' : 'top');
+        }
+
+        if (shadowAfter.length === 0) {
+          shadowAfter = createShadow(params, $slideEl, swiper.isHorizontal() ? 'right' : 'bottom');
+        }
+
+        if (shadowBefore.length) shadowBefore[0].style.opacity = Math.max(-progress, 0);
+        if (shadowAfter.length) shadowAfter[0].style.opacity = Math.max(progress, 0);
+      };
+
+      const recreateShadows = () => {
+        // Set shadows
+        const params = swiper.params.flipEffect;
+        swiper.slides.each(slideEl => {
+          const $slideEl = $(slideEl);
+          let progress = $slideEl[0].progress;
+
+          if (swiper.params.flipEffect.limitRotation) {
+            progress = Math.max(Math.min(slideEl.progress, 1), -1);
+          }
+
+          createSlideShadows($slideEl, progress, params);
+        });
+      };
+
       const setTranslate = () => {
         const {
           slides,
@@ -9979,20 +10210,7 @@
           $slideEl[0].style.zIndex = -Math.abs(Math.round(progress)) + slides.length;
 
           if (params.slideShadows) {
-            // Set shadows
-            let shadowBefore = swiper.isHorizontal() ? $slideEl.find('.swiper-slide-shadow-left') : $slideEl.find('.swiper-slide-shadow-top');
-            let shadowAfter = swiper.isHorizontal() ? $slideEl.find('.swiper-slide-shadow-right') : $slideEl.find('.swiper-slide-shadow-bottom');
-
-            if (shadowBefore.length === 0) {
-              shadowBefore = createShadow(params, $slideEl, swiper.isHorizontal() ? 'left' : 'top');
-            }
-
-            if (shadowAfter.length === 0) {
-              shadowAfter = createShadow(params, $slideEl, swiper.isHorizontal() ? 'right' : 'bottom');
-            }
-
-            if (shadowBefore.length) shadowBefore[0].style.opacity = Math.max(-progress, 0);
-            if (shadowAfter.length) shadowAfter[0].style.opacity = Math.max(progress, 0);
+            createSlideShadows($slideEl, progress, params);
           }
 
           const transform = `translate3d(${tx}px, ${ty}px, 0px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
@@ -10020,6 +10238,8 @@
         on,
         setTranslate,
         setTransition,
+        recreateShadows,
+        getEffectParams: () => swiper.params.flipEffect,
         perspective: () => true,
         overwriteParams: () => ({
           slidesPerView: 1,
